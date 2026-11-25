@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# dados pessoais gerados pelo uso
+config.json
+*.csv
+*.log

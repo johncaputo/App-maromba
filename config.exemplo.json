@@ -1,0 +1,20 @@
+{
+  "peso": 85,
+  "altura": 178,
+  "idade": 28,
+  "sexo": "m",
+  "cintura": 88,
+  "pescoco": 39,
+  "biotipo": "mesomorfo",
+  "objetivo": "secar",
+  "perfil": "natural",
+  "experiencia": "intermediario",
+  "atividade": "moderado",
+  "treinos_semana": 5,
+  "gordura_alvo": 12,
+  "refeicoes": 4,
+  "cardapio": true,
+  "treino": true,
+  "levantamento": ["supino:100x5", "agachamento:140x5", "terra:160x5"],
+  "registrar": "historico.csv"
+}
