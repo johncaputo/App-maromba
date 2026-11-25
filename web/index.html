@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>App Maromba</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: coluna unica de telefone. Resumo do plano no topo, abas presas abaixo dele,
+   superficies brancas so para blocos que sao um objeto (refeicao, sessao de treino, formulario). */
+:root {
+  --bg: #f2f4f7; --surface: #ffffff; --surface-2: #e9edf2; --ink: #14181d; --ink-2: #55606c;
+  --line: #dfe4ea; --axis: #b9c2cc;
+  --accent: #1c56d6; --accent-ink: #ffffff; --accent-soft: #e2ebfc;
+  --s1: #257de0; --s2: #f47230; --s3: #00b894; --s1-soft: #9dc8f7;
+  --good: #0aac23; --warning: #fbb315; --serious: #f18a59; --critical: #dc3c3d;
+  --warn-bg: #fff6dd; --warn-line: #f0cf7a; --crit-bg: #fde9e9; --crit-line: #f0aaaa;
+  --placa-25: #d0312d; --placa-20: #1f5fbf; --placa-15: #f2b90f; --placa-10: #1d8a3a;
+  --placa-5: #f4f4f4; --placa-p: #8a929b;
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r: 10px;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1114; --surface: #191c20; --surface-2: #23282e; --ink: #eef1f4; --ink-2: #9aa5b0;
+    --line: #2a3037; --axis: #454e58;
+    --accent: #6f9cf5; --accent-ink: #0b1220; --accent-soft: #1b2a47;
+    --s1: #338ced; --s2: #e76624; --s3: #00a888; --s1-soft: #1757ac;
+    --warn-bg: #2c2410; --warn-line: #6b5518; --crit-bg: #321517; --crit-line: #7a2d30;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1114; --surface: #191c20; --surface-2: #23282e; --ink: #eef1f4; --ink-2: #9aa5b0;
+  --line: #2a3037; --axis: #454e58;
+  --accent: #6f9cf5; --accent-ink: #0b1220; --accent-soft: #1b2a47;
+  --s1: #338ced; --s2: #e76624; --s3: #00a888; --s1-soft: #1757ac;
+  --warn-bg: #2c2410; --warn-line: #6b5518; --crit-bg: #321517; --crit-line: #7a2d30;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--body); -webkit-text-size-adjust: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: 30px; }
+h2 { font-size: 23px; margin-top: 32px; margin-bottom: 12px; }
+h3 { font-size: 18px; font-weight: 600; }
+p { margin: 0; }
+ul, ol, dl, dd { margin: 0; padding: 0; }
+li { list-style: none; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.sub { color: var(--ink-2); font-size: 14px; }
+
+.topo { padding-block: 18px 6px; }
+.topo .lema { color: var(--ink-2); font-size: 14px; }
+
+/* resumo do plano */
+.resumo { padding-block: 10px 18px; }
+.resumo .rotulo { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); }
+.heroi { font-size: 52px; font-weight: 600; line-height: 1.05; letter-spacing: -.01em; }
+.heroi .un { font-size: 20px; font-weight: 500; color: var(--ink-2); letter-spacing: 0; }
+.macrobar { display: flex; gap: 2px; height: 28px; margin-top: 14px; }
+.macrobar .seg { border-radius: 4px; min-width: 6px; display: flex; align-items: center; padding-left: 8px; color: #fff; font-size: 13px; font-weight: 600; overflow: visible; white-space: nowrap; }
+.s1 { background: var(--s1); } .s2 { background: var(--s2); } .s3 { background: var(--s3); }
+.legenda { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 14px; }
+.legenda li { display: flex; align-items: center; gap: 7px; }
+.legenda b { font-weight: 600; }
+.sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.sw.linha { height: 3px; border-radius: 2px; width: 16px; }
+.sw.ref { background: var(--ink-2); }
+.sw.soft { background: var(--s1-soft); }
+
+.faixa-exemplo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; background: var(--accent-soft); border-radius: var(--r); padding: 12px 14px; font-size: 14px; margin-bottom: 14px; }
+.faixa-exemplo p { flex: 1 1 200px; min-width: 0; }
+
+.callout { border: 1px solid var(--warn-line); background: var(--warn-bg); border-radius: var(--r); padding: 12px 14px; margin-bottom: 14px; }
+.callout.critico { border-color: var(--crit-line); background: var(--crit-bg); }
+.callout h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.callout h3::before { content: "!"; flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--warning); color: #0b0b0b; font: 700 14px/20px var(--body); text-align: center; }
+.callout.critico h3::before { background: var(--critical); color: #fff; }
+.callout li { font-size: 14px; padding-left: 14px; position: relative; }
+.callout li + li { margin-top: 6px; }
+.callout li::before { content: ""; position: absolute; left: 2px; top: .6em; width: 5px; height: 5px; border-radius: 50%; background: var(--ink-2); }
+
+/* abas */
+.abas { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.abas-linha { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.abas-linha::-webkit-scrollbar { display: none; }
+.abas a { flex: 1 0 auto; text-align: center; padding: 12px 8px 9px; font: 600 18px/1 var(--display); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); text-decoration: none; border-bottom: 3px solid transparent; }
+.abas a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+.conteudo { padding-block: 4px 40px; min-height: 60vh; }
+
+/* blocos */
+.bloco { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; }
+.pilha { display: grid; gap: 10px; }
+.pares { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; }
+.pares dt { color: var(--ink-2); min-width: 0; }
+.pares dd { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.duas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile .rotulo { font-size: 13px; color: var(--ink-2); }
+.tile .valor { font-size: 26px; font-weight: 600; line-height: 1.2; }
+.tile .valor small { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.lista li { position: relative; padding-left: 16px; }
+.lista li + li { margin-top: 8px; }
+.lista li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 6px; height: 6px; border-radius: 50%; background: var(--axis); }
+.cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.cab .dir { color: var(--ink-2); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.itens { margin-top: 8px; font-size: 15px; }
+.itens li { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid var(--line); }
+.itens li span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-2); }
+.vazio { color: var(--ink-2); padding: 18px 0; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: var(--surface-2); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-2); }
+.pill.bom::before { background: var(--good); } .pill.atencao::before { background: var(--warning); }
+.pill.serio::before { background: var(--serious); } .pill.critico::before { background: var(--critical); }
+.marca { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); border: 1px solid var(--axis); border-radius: 4px; padding: 0 5px; }
+
+/* treino */
+.sessao summary { cursor: pointer; display: flex; align-items: baseline; gap: 10px; list-style: none; }
+.sessao summary::-webkit-details-marker { display: none; }
+.sessao .dia { font: 700 20px/1 var(--display); letter-spacing: .05em; color: var(--accent); flex: none; width: 38px; }
+.exs { margin-top: 10px; }
+.exs li { padding: 9px 0; border-top: 1px solid var(--line); }
+.ex-linha { display: flex; justify-content: space-between; gap: 12px; }
+.ex-linha b { font-weight: 500; min-width: 0; }
+.ex-linha span { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.ex-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+.placas { display: inline-flex; align-items: center; gap: 2px; }
+.placas i { font-style: normal; font-size: 11px; font-weight: 600; line-height: 1; padding: 4px 4px; border-radius: 3px; color: #fff; font-variant-numeric: tabular-nums; }
+.placas .barra { width: 14px; height: 4px; background: var(--placa-p); border-radius: 2px; padding: 0; }
+.p25 { background: var(--placa-25); } .p20 { background: var(--placa-20); } .p10 { background: var(--placa-10); }
+.placas .p15 { background: var(--placa-15); color: #0b0b0b; } .placas .p5 { background: var(--placa-5); color: #0b0b0b; box-shadow: inset 0 0 0 1px var(--axis); }
+.pp { background: var(--placa-p); }
+.volume { display: grid; gap: 9px; }
+.vol { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 14px; }
+.vol .trilho { position: relative; height: 12px; background: var(--surface-2); border-radius: 0 4px 4px 0; }
+.vol .ideal { position: absolute; top: -3px; bottom: -3px; border-left: 1px solid var(--axis); border-right: 1px solid var(--axis); background: var(--accent-soft); opacity: .55; }
+.vol .barra { position: absolute; left: 0; top: 0; bottom: 0; background: var(--s1); border-radius: 0 4px 4px 0; }
+.vol .val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vol .val small { color: var(--ink-2); }
+.escala { display: flex; gap: 2px; margin-top: 10px; }
+.escala span { flex: 1 1 0; min-width: 0; text-align: center; font-size: 11px; line-height: 1.2; padding: 6px 2px; background: var(--surface-2); color: var(--ink-2); border-radius: 4px; overflow-wrap: anywhere; }
+.escala .ativo { background: var(--ink); color: var(--bg); font-weight: 600; }
+.cargas { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; text-align: center; }
+.cargas div { background: var(--surface-2); border-radius: 6px; padding: 6px 2px; }
+.cargas small { display: block; color: var(--ink-2); font-size: 12px; }
+.cargas b { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* graficos */
+.grafico { position: relative; margin-top: 6px; }
+.grafico svg { display: block; width: 100%; touch-action: pan-y; }
+.grafico .grade { stroke: var(--line); stroke-width: 1; }
+.grafico .base { stroke: var(--axis); stroke-width: 1; }
+.grafico text { fill: var(--ink-2); font: 12px var(--body); font-variant-numeric: tabular-nums; }
+.grafico text.fim { fill: var(--ink); font-weight: 600; }
+.grafico .l1 { fill: none; stroke: var(--s1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.grafico .a1 { fill: var(--s1); opacity: .1; }
+.grafico .lref { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-linecap: round; }
+.grafico .p1 { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+.grafico .mira { stroke: var(--axis); stroke-width: 1; }
+.dica { position: absolute; top: 0; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.35; white-space: nowrap; z-index: 2; }
+.dica b { font-size: 14px; }
+.dica .k { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; background: var(--s1); }
+.dica .k.ref { background: var(--axis); }
+details.tabela { margin-top: 8px; font-size: 14px; }
+details.tabela summary { cursor: pointer; color: var(--accent); }
+details.tabela table { border-collapse: collapse; margin-top: 8px; width: 100%; }
+details.tabela th, details.tabela td { text-align: left; padding: 5px 8px 5px 0; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; font-weight: 400; }
+details.tabela th { color: var(--ink-2); }
+.fases { display: flex; gap: 2px; height: 8px; margin: 12px 0 8px; }
+.fases span { border-radius: 4px; background: var(--s1); min-width: 3px; }
+.fases .pausa { background: var(--s1-soft); }
+.linha-tempo li { position: relative; padding: 0 0 16px 22px; border-left: 2px solid var(--line); margin-left: 6px; }
+.linha-tempo li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.linha-tempo li::before { content: ""; position: absolute; left: -7px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+.linha-tempo b { display: block; font: 600 17px/1.2 var(--display); text-transform: uppercase; letter-spacing: .05em; }
+
+/* formularios */
+form { display: grid; gap: 16px; }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 14px; min-width: 0; }
+legend { font: 700 23px/1.1 var(--display); text-transform: uppercase; letter-spacing: .03em; padding: 0; margin-bottom: 12px; }
+.campo { display: grid; gap: 5px; min-width: 0; }
+.campo > label, .campo > .rot { font-size: 14px; font-weight: 500; }
+.campo label small, .rot small { font-weight: 400; color: var(--ink-2); }
+.tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+input[type="text"], input[type="date"], select { width: 100%; min-height: 46px; padding: 8px 12px; font: 400 16px/1.3 var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; }
+input[aria-invalid="true"] { border-color: var(--critical); box-shadow: 0 0 0 1px var(--critical); }
+.erro { color: var(--critical); font-size: 13px; font-weight: 500; }
+.dica-campo { color: var(--ink-2); font-size: 13px; }
+.seg-ctl { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg-ctl input { position: absolute; opacity: 0; pointer-events: none; }
+.seg-ctl label { text-align: center; padding: 11px 4px; font-size: 15px; font-weight: 500; cursor: pointer; border-left: 1px solid var(--line); min-width: 0; overflow-wrap: anywhere; }
+.seg-ctl label:first-of-type { border-left: 0; }
+.seg-ctl input:checked + label { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.seg-ctl input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: -4px; }
+.passo { display: grid; grid-template-columns: 46px 1fr 46px; align-items: center; border: 1px solid var(--axis); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.passo output { text-align: center; font-weight: 600; font-size: 18px; font-variant-numeric: tabular-nums; }
+.passo button { height: 46px; border: 0; background: var(--surface-2); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; }
+.botao { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 18px; font: 600 16px/1 var(--body); border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; text-decoration: none; }
+.botao.sec { background: transparent; color: var(--accent); }
+.botao.mini { min-height: 34px; padding: 0 10px; font-size: 13px; border-color: var(--axis); color: var(--ink); background: transparent; }
+.botao.perigo { border-color: var(--critical); color: var(--critical); background: transparent; }
+.linha-form { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: end; }
+.linha-form .botao { grid-column: 1 / -1; }
+.acoes { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.reg { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.reg .txt { min-width: 0; }
+.reg .txt small { display: block; color: var(--ink-2); font-size: 13px; }
+.rodape { color: var(--ink-2); font-size: 13px; padding-block: 0 28px; }
+@media (max-width: 420px) {
+  .heroi { font-size: 46px; }
+  .abas a { font-size: 16px; padding-inline: 6px; }
+  .vol { grid-template-columns: 84px minmax(0, 1fr) auto; }
+}
+</style>
+</head>
+<body>
+<header class="topo"><div class="wrap">
+  <h1>App Maromba</h1>
+  <p class="lema">Dieta, treino e exames no mesmo lugar</p>
+</div></header>
+
+<main>
+  <div class="wrap">
+    <section class="resumo" id="resumo" aria-live="polite"></section>
+    <div class="faixa-exemplo" id="faixa-exemplo" hidden>
+      <p><b>Você está vendo um exemplo:</b> homem de 85 kg, 178 cm e 28 anos que quer secar.</p>
+      <a class="botao" href="#dados">Colocar meus dados</a>
+    </div>
+    <div id="erro-calculo" class="callout critico" hidden></div>
+    <section id="avisos" class="callout" hidden></section>
+  </div>
+
+  <nav class="abas" aria-label="Seções do app"><div class="wrap abas-linha">
+    <a href="#dieta" data-aba="dieta">Dieta</a>
+    <a href="#treino" data-aba="treino">Treino</a>
+    <a href="#saude" data-aba="saude">Saúde</a>
+    <a href="#progresso" data-aba="progresso">Progresso</a>
+    <a href="#dados" data-aba="dados">Dados</a>
+  </div></nav>
+
+  <div class="wrap conteudo">
+    <section id="aba-dieta" data-painel="dieta"></section>
+
+    <section id="aba-treino" data-painel="treino" hidden>
+      <div id="treino-plano"></div>
+      <h2>Suas cargas</h2>
+      <p class="sub">Informe uma série recente. O app estima a carga máxima (1RM), o seu nível e a carga de trabalho do plano.</p>
+      <div id="treino-cargas" class="pilha" style="margin-top:12px"></div>
+      <form id="form-carga" class="bloco" style="margin-top:12px" novalidate>
+        <div class="linha-form">
+          <div class="campo"><label for="c-exercicio">Exercício</label>
+            <select id="c-exercicio">
+              <option value="supino">Supino reto</option>
+              <option value="agachamento">Agachamento livre</option>
+              <option value="terra">Levantamento terra</option>
+              <option value="desenvolvimento">Desenvolvimento</option>
+              <option value="outro">Outro exercício</option>
+            </select></div>
+          <div class="campo"><label for="c-carga">Carga <small>kg</small></label><input type="text" inputmode="decimal" id="c-carga" autocomplete="off"></div>
+          <div class="campo"><label for="c-reps">Repetições</label><input type="text" inputmode="numeric" id="c-reps" autocomplete="off"></div>
+          <div class="campo" id="c-nome-campo" hidden style="grid-column:1/-1"><label for="c-nome">Nome do exercício</label><input type="text" id="c-nome" maxlength="40" autocomplete="off"></div>
+          <p class="erro" id="c-erro" hidden style="grid-column:1/-1"></p>
+          <button class="botao" type="submit">Adicionar carga</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="aba-saude" data-painel="saude" hidden>
+      <h2>Pressão arterial</h2>
+      <div class="bloco">
+        <div class="duas">
+          <div class="campo"><label for="p-sis">Sistólica <small>a maior, mmHg</small></label><input type="text" inputmode="numeric" id="p-sis" placeholder="125" autocomplete="off"></div>
+          <div class="campo"><label for="p-dia">Diastólica <small>a menor, mmHg</small></label><input type="text" inputmode="numeric" id="p-dia" placeholder="80" autocomplete="off"></div>
+        </div>
+        <p class="erro" id="p-erro" hidden style="margin-top:8px"></p>
+        <div id="saude-pressao" style="margin-top:12px"></div>
+      </div>
+
+      <h2>Exames de sangue</h2>
+      <p class="sub">Digite o valor do seu laudo. O app compara com a faixa de referência de adulto; a referência impressa no laudo prevalece.</p>
+      <div id="saude-exames" class="pilha" style="margin-top:12px"></div>
+      <form id="form-exame" class="bloco" style="margin-top:12px" novalidate>
+        <div class="linha-form" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
+          <div class="campo"><label for="x-marcador">Exame</label><select id="x-marcador"></select></div>
+          <div class="campo"><label for="x-valor">Valor <small id="x-unidade"></small></label><input type="text" inputmode="decimal" id="x-valor" autocomplete="off"></div>
+          <p class="erro" id="x-erro" hidden style="grid-column:1/-1"></p>
+          <button class="botao" type="submit">Adicionar exame</button>
+        </div>
+      </form>
+
+      <div id="saude-texto"></div>
+    </section>
+
+    <section id="aba-progresso" data-painel="progresso" hidden>
+      <h2>Registrar peso</h2>
+      <form id="form-peso" class="bloco" novalidate>
+        <div class="duas">
+          <div class="campo"><label for="h-data">Data</label><input type="date" id="h-data"></div>
+          <div class="campo"><label for="h-peso">Peso <small>kg, em jejum</small></label><input type="text" inputmode="decimal" id="h-peso" autocomplete="off"></div>
+        </div>
+        <p class="erro" id="h-erro" hidden></p>
+        <button class="botao" type="submit">Registrar</button>
+      </form>
+      <div id="progresso-saida"></div>
+    </section>
+
+    <section id="aba-dados" data-painel="dados" hidden>
+      <form id="form-dados" novalidate style="margin-top:28px">
+        <fieldset>
+          <legend>Corpo</legend>
+          <div class="tres">
+            <div class="campo"><label for="f-peso">Peso <small>kg</small></label><input type="text" inputmode="decimal" id="f-peso" autocomplete="off"><p class="erro" id="e-peso" hidden></p></div>
+            <div class="campo"><label for="f-altura">Altura <small>cm</small></label><input type="text" inputmode="decimal" id="f-altura" autocomplete="off"><p class="erro" id="e-altura" hidden></p></div>
+            <div class="campo"><label for="f-idade">Idade <small>anos</small></label><input type="text" inputmode="numeric" id="f-idade" autocomplete="off"><p class="erro" id="e-idade" hidden></p></div>
+          </div>
+          <div class="campo"><span class="rot" id="r-sexo">Sexo</span>
+            <div class="seg-ctl" role="radiogroup" aria-labelledby="r-sexo">
+              <input type="radio" name="sexo" id="f-sexo-m" value="m"><label for="f-sexo-m">Homem</label>
+              <input type="radio" name="sexo" id="f-sexo-f" value="f"><label for="f-sexo-f">Mulher</label>
+            </div></div>
+          <div class="campo"><label for="f-gordura">Gordura corporal <small>%, se você sabe</small></label><input type="text" inputmode="decimal" id="f-gordura" autocomplete="off"><p class="erro" id="e-gordura" hidden></p>
+            <p class="dica-campo">Não sabe? Deixe em branco e preencha as medidas abaixo: o app estima pela fita métrica.</p></div>
+          <div class="tres">
+            <div class="campo"><label for="f-cintura">Cintura <small>cm</small></label><input type="text" inputmode="decimal" id="f-cintura" autocomplete="off"><p class="erro" id="e-cintura" hidden></p></div>
+            <div class="campo"><label for="f-pescoco">Pescoço <small>cm</small></label><input type="text" inputmode="decimal" id="f-pescoco" autocomplete="off"><p class="erro" id="e-pescoco" hidden></p></div>
+            <div class="campo"><label for="f-quadril">Quadril <small>cm</small></label><input type="text" inputmode="decimal" id="f-quadril" autocomplete="off"><p class="erro" id="e-quadril" hidden></p></div>
+          </div>
+          <p class="dica-campo">Cintura: homens medem na altura do umbigo, mulheres na parte mais estreita. O quadril só entra na conta para mulheres.</p>
+          <div class="campo"><span class="rot" id="r-biotipo">Biótipo</span>
+            <div class="seg-ctl" role="radiogroup" aria-labelledby="r-biotipo">
+              <input type="radio" name="biotipo" id="f-bio-ecto" value="ectomorfo"><label for="f-bio-ecto">Ectomorfo</label>
+              <input type="radio" name="biotipo" id="f-bio-meso" value="mesomorfo"><label for="f-bio-meso">Mesomorfo</label>
+              <input type="radio" name="biotipo" id="f-bio-endo" value="endomorfo"><label for="f-bio-endo">Endomorfo</label>
+            </div>
+            <p class="dica-campo">Ectomorfo: magro, difícil ganhar peso. Mesomorfo: ganha músculo com facilidade. Endomorfo: acumula gordura com facilidade.</p></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Plano</legend>
+          <div class="campo"><span class="rot" id="r-objetivo">Objetivo</span>
+            <div class="seg-ctl" role="radiogroup" aria-labelledby="r-objetivo">
+              <input type="radio" name="objetivo" id="f-obj-secar" value="secar"><label for="f-obj-secar">Secar</label>
+              <input type="radio" name="objetivo" id="f-obj-manter" value="manter"><label for="f-obj-manter">Manter</label>
+              <input type="radio" name="objetivo" id="f-obj-crescer" value="crescer"><label for="f-obj-crescer">Crescer</label>
+            </div></div>
+          <div class="campo"><label for="f-perfil">Perfil</label>
+            <select id="f-perfil">
+              <option value="natural">Natural</option>
+              <option value="trt">Reposição hormonal (TRT) com médico</option>
+              <option value="hormonizado">Hormonizado</option>
+            </select>
+            <p class="dica-campo">Muda proteína, ritmo, cardio e os exames a acompanhar. O app não calcula dose, substância nem ciclo.</p></div>
+          <div class="campo"><span class="rot" id="r-experiencia">Tempo de treino sério</span>
+            <div class="seg-ctl" role="radiogroup" aria-labelledby="r-experiencia">
+              <input type="radio" name="experiencia" id="f-exp-ini" value="iniciante"><label for="f-exp-ini">Iniciante</label>
+              <input type="radio" name="experiencia" id="f-exp-int" value="intermediario"><label for="f-exp-int">Intermediário</label>
+              <input type="radio" name="experiencia" id="f-exp-ava" value="avancado"><label for="f-exp-ava">Avançado</label>
+            </div>
+            <p class="dica-campo">Iniciante: menos de 1 ano. Intermediário: 1 a 3 anos. Avançado: mais de 3 anos.</p></div>
+          <div class="campo"><label for="f-atividade">Rotina fora da academia</label>
+            <select id="f-atividade">
+              <option value="sedentario">Sedentário: trabalho sentado, poucos passos</option>
+              <option value="leve">Leve: 1 a 3 treinos por semana</option>
+              <option value="moderado">Moderado: 3 a 5 treinos por semana</option>
+              <option value="intenso">Intenso: 6 a 7 treinos por semana</option>
+              <option value="atleta">Atleta: dois treinos por dia ou trabalho braçal</option>
+            </select></div>
+          <div class="duas">
+            <div class="campo"><span class="rot" id="r-treinos">Treinos por semana</span>
+              <div class="passo" role="group" aria-labelledby="r-treinos">
+                <button type="button" data-passo="-1" data-campo="treinos_semana" aria-label="Menos um treino">−</button>
+                <output id="f-treinos_semana">5</output>
+                <button type="button" data-passo="1" data-campo="treinos_semana" aria-label="Mais um treino">+</button>
+              </div></div>
+            <div class="campo"><span class="rot" id="r-refeicoes">Refeições por dia</span>
+              <div class="passo" role="group" aria-labelledby="r-refeicoes">
+                <button type="button" data-passo="-1" data-campo="refeicoes" aria-label="Menos uma refeição">−</button>
+                <output id="f-refeicoes">4</output>
+                <button type="button" data-passo="1" data-campo="refeicoes" aria-label="Mais uma refeição">+</button>
+              </div></div>
+          </div>
+          <div class="campo"><label for="f-gordura_alvo">Gordura que quer atingir <small>%, só para secar</small></label><input type="text" inputmode="decimal" id="f-gordura_alvo" autocomplete="off"><p class="erro" id="e-gordura_alvo" hidden></p></div>
+        </fieldset>
+
+        <div class="acoes">
+          <p class="sub" id="status-salvo" style="flex:1 1 200px"></p>
+          <button type="button" class="botao sec" id="btn-exemplo">Voltar ao exemplo</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
+
+<footer class="wrap rodape">
+  <p>O App Maromba calcula dieta, treino e acompanhamento. Não calcula dose, substância nem ciclo, e não substitui médico ou nutricionista.</p>
+</footer>
+
+<script src="dados.js"></script>
+<script src="calc.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
